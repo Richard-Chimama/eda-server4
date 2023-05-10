@@ -51,7 +51,12 @@ export const Query = {
        return bindUserHospital;
     },
     user: async(parent:any, args:any, {models}:{models:any})=> {
-        const user = await models.Users.findById(args.id)
+        const user = await models.Users.findOne({
+            $or:[{email:args.email}]
+        })
+       if (!user) {
+        throw new GraphQLError("Error user not found!!");
+      }
         const userBindHospital = user
           .populate("hospital")
           .then((hospital: any) => hospital)

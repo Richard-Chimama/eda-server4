@@ -39,7 +39,7 @@ export const typeDefs = `#graphql
 
     #Users query
     users: [Users!]!
-    user(id: ID!): Users
+    user( email: String!): Users
     me: Users!
   }
 
