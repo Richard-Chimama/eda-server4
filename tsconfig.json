@@ -9,7 +9,9 @@
     "moduleResolution": "node",
     "strict": true,
     "types":["node"],
-    "target": "es2017"
+    "target": "es2017",
+    "allowJs": true,
+    "maxNodeModuleJsDepth": 10
   },
   "compileOnSave": true,
   "include": [

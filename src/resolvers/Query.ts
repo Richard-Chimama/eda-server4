@@ -75,4 +75,17 @@ export const Query = {
 
         return userBindHospital
     },
+    patients: async(parent:any, args:any, {models}:{models:any})=>{
+        const patients = await models.Patients.find().limit(100)
+        const getPatientWithAllReferences = patients.map((patient:any) =>{
+            const person = patient.populate("hospital")
+                                  .populate("user")
+                                  .populate("history")
+                                  .then((client:any) => client)
+                                  .catch((error:any) => console.error(error))
+                return person
+        })
+
+        return getPatientWithAllReferences
+    },
 }

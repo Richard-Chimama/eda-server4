@@ -3,6 +3,8 @@ import { expressMiddleware } from '@apollo/server/express4';
 import cors from "cors"
 import bodyParser from "body-parser"
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default"
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs"
 import http from 'http';
 import express from 'express'
 import { typeDefs } from './Schema.js';
@@ -32,7 +34,12 @@ const httpServer:any = http.createServer(app);
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    csrfPrevention: true,
+    cache: 'bounded',
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      ApolloServerPluginLandingPageLocalDefault({embed: true})
+    ],
   });
   // Ensure we wait for our server to start
   await server.start();
@@ -45,6 +52,7 @@ app.use(
     '/api',
     cors<cors.CorsRequest>(),
     bodyParser.json(),
+    graphqlUploadExpress(),
     // expressMiddleware accepts the same arguments:
     // an Apollo Server instance and optional configuration options
     expressMiddleware(server, {
@@ -77,4 +85,4 @@ app.use(
 
 // Modified server startup
 await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
-console.log(`🚀 Server ready at http://localhost:${PORT}/`);
+console.log(`🚀 Server ready at http://localhost:${PORT}/api`);
