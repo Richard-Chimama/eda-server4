@@ -78,14 +78,37 @@ export const Query = {
     patients: async(parent:any, args:any, {models}:{models:any})=>{
         const patients = await models.Patients.find().limit(100)
         const getPatientWithAllReferences = patients.map((patient:any) =>{
-            const person = patient.populate("hospital")
-                                  .populate("user")
-                                  .populate("history")
-                                  .then((client:any) => client)
-                                  .catch((error:any) => console.error(error))
+            const person = patient
+              .populate([
+                {
+                  path: "hospital",
+                  model: "Hospitals",
+                }
+              ])
+              .then((client: any) => client)
+              .catch((error: any) => console.error(error));
                 return person
         })
 
         return getPatientWithAllReferences
     },
+    form_attendances: async(parent:any, args:any, {models, user}:{models:any, user:any})=>{
+        const fiches = await models.Form_attendance.find().limit()
+        const fichWithAllReference = fiches.map((fiche:any)=>{
+            const form = fiche.populate([
+                {
+                    path: "patient",
+                    model: "Patients"
+                },
+                {
+                    path: "users",
+                    model: "Users"
+                }
+            ]).then((fich:any)=> fich)
+                .catch((error: any) => console.error(error))
+               return form
+        })
+
+        return fichWithAllReference;
+    }
 }
