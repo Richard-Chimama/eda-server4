@@ -48,8 +48,8 @@ const patientSchema = new mongoose.Schema(
       required: false,
     },
     avatar: {
-      data: Buffer,
-      contentType: String,
+        type: String,
+        required: false,
     },
     hospital: [
       {

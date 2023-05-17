@@ -86,7 +86,7 @@ export const typeDefs = `#graphql
 
     #Patients query
     patients: [Patients!]!
-    patient(code: String!): Patients
+    patient(id: String!): Patients
 
     #Fiche
     form_attendances: [Form_attendance]!

@@ -1,5 +1,9 @@
 import { GraphQLError } from "graphql"
 
+interface Params{
+    models:any,
+    user:any
+}
 
 export const Query = {
     hospitals: async (parent:any, args:any, {models}:{models:any})=> {
@@ -26,7 +30,7 @@ export const Query = {
 
       return hospitalBindedUser;
     },
-    checkHospital: async (parent:any, args:any, {models}:{models:any})=> {
+    checkHospital: async (parent:any, args:any, {models}:Params)=> {
         const check = await models.hospitals.findOne({
             $or: [{name: args.name}]
         })
@@ -92,7 +96,30 @@ export const Query = {
 
         return getPatientWithAllReferences
     },
+    patient: async(parent:any, args:any, {models, user}:{models:any, user:any})=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+        try{
+            const patient = await models.Patients.findById(args.id)
+            const person = patient.populate([
+                {
+                    path: "hospital",
+                  model: "Hospitals",
+                }
+            ])
+            .then((client: any) => client)
+            .catch((error: any) => console.error(error));
+        return person
+
+        }catch(err:any){
+            throw new GraphQLError(err.message)
+        }
+    },
     form_attendances: async(parent:any, args:any, {models, user}:{models:any, user:any})=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
         const fiches = await models.Form_attendance.find().limit()
         const fichWithAllReference = fiches.map((fiche:any)=>{
             const form = fiche.populate([
@@ -110,5 +137,31 @@ export const Query = {
         })
 
         return fichWithAllReference;
-    }
+    },
+    form_attendance: async (parent:any, args:any, {models, user}:Params) => {
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+
+        try{
+            const fiche = await models.Form_attendance.findById(args.id)
+            const form = fiche.populate([
+                {
+                    path: "patient",
+                    model: "Patients"
+                },
+                {
+                    path: "users",
+                    model: "Users"
+                }
+            ]).then((fich:any)=> fich)
+                .catch((error: any) => console.error(error))
+                
+            return form
+
+        }catch(err){
+            throw new GraphQLError("failed to return the fiche for the patient")
+        }
+    },
+
 }

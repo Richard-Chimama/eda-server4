@@ -13,8 +13,16 @@ import db from './db.js';
 import dotenv from "dotenv"
 import models from './models/index.js';
 import jwt from "jsonwebtoken"
+import cloudinary from 'cloudinary'
 
 dotenv.config()
+
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUND_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+  secure: true
+})
 
 const DB_HOST = process.env.DB_HOST
 const JWT_SECRETE:any = process.env.JWT_SECRETE
@@ -28,6 +36,7 @@ const app = express();
 // Below, we tell Apollo Server to "drain" this httpServer,
 // enabling our servers to shut down gracefully.
 const httpServer:any = http.createServer(app);
+
 
 // Same ApolloServer initialization as before, plus the drain plugin
 // for our httpServer.
@@ -60,8 +69,10 @@ app.use(
         const token = req.headers.authorization
         //try to retrieve the user  with the token
         const user:any = getUser(token)
+        const clound = cloudinary.v2
+
         
-        return { models, user}
+        return { models, user, clound}
      },
     }),
   );
