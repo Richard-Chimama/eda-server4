@@ -31,22 +31,20 @@ export const typeDefs = `#graphql
 
   type Patients{
     id: ID!
-    firstName: String!
-    middleName: String
-    secondName: String!
+    id_card: String!
+    first_name: String!
+    middle_name: String
+    last_name: String!
     gender: String!
     area: String!
-    streetAddress: String!
-    dateOfBirth: DateTime!
-    age: String!
+    street_address: String!
+    date_of_birth: DateTime!
     code: String!
-    patientPhoneNumber: String
-    contactPerson: String
-    contactPersonPhoneNumber: String
+    patient_phone_number: String
+    contact_person: String
+    contact_person_phone_number: String
     avatar: Upload
     hospital: [Hospital]
-    users: [Users]
-    history: [Form_attendance]
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -64,12 +62,12 @@ export const typeDefs = `#graphql
     poids: String
     taille: String
     ta:String
-    onservations: String
+    observations: String
     prescription: String
     createdAt: DateTime!
     updatedAt: DateTime!
     patient: Patients!
-
+    users: [Users]
   }
 
   # The "Query" type is special: it lists all of the available queries that
@@ -88,7 +86,11 @@ export const typeDefs = `#graphql
 
     #Patients query
     patients: [Patients!]!
-    patient(code: String!): Patients
+    patient(id: String!): Patients
+
+    #Fiche
+    form_attendances: [Form_attendance]!
+    form_attendance(id: ID!): Form_attendance!
   }
 
   type Mutation{
@@ -100,6 +102,18 @@ export const typeDefs = `#graphql
     #Users
     signUp(username: String!, email: String!, password: String!, cnop: String, role: String!, avatar: String, hospital: String! ):String!
     signIn( email: String!, password: String!): String!
+
+
+    #Patients mutaions
+    newPatient(id_card: String!, first_name: String!,middle_name:String, last_name: String!, gender: String!, area: String, 
+                street_address: String!, date_of_birth: DateTime !, code: String!, patient_phone_number: String,
+                contact_person: String, contact_person_phone_number: String, avatar:Upload, hospital: String): Patients!
+    deletePatient(id:ID!): Boolean!
+
+    #new form the attendance
+    newFiche(allergie:String, intoxication: String, atcd_chirurgicaux: String, atcd_medicaux: String,
+            rh: String, gs: String, pouls: String, temperature: String, poids: String, taille: String,
+            ta:String, observations: String, prescription: String, patient:String!): Form_attendance!
 
   }
 `;

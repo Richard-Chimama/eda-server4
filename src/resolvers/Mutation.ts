@@ -2,11 +2,14 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import { GraphQLError } from 'graphql';
 import dotenv from "dotenv"
+import { createWriteStream } from "fs";
+import { resolve } from "path";
+
 
 dotenv.config()
 
 const JWT_SECRETE:any = "edaprojectformybrother"
-
+//const require = createRequire(import.meta.url)
 
 export const Mutation = {
   newHospital: async (
@@ -24,7 +27,7 @@ export const Mutation = {
     }else{
       const hospital = await models.hospitals.create({
         name: args.name.trim().toLowerCase(),
-        address: args.address,
+        address: args.address.trim(),
         city: args.city,
         category: args.category.trim().toLowerCase(),
         user: "644e4dbb74c80833df3b3f8b"
@@ -176,6 +179,87 @@ export const Mutation = {
     //create and return the json web token
     return jwt.sign({ id: user._id }, JWT_SECRETE);
   }, //end of signing in
+
+  //create a patient
+  newPatient: async(parent:any, args:any, {models, user, clound}:{models:any, user:any, clound:any})=>{
+
+    const {filename, createReadStream} = await args.avatar;
+    //const filename = uuidv4(); // Generate a unique filename
+    const stream = createReadStream()
+
+     // Generate a temporary file path
+    const filePath = resolve(`./upload/${filename}`);
+  
+  // Create a writable stream to save the file temporarily
+    const writeStream = createWriteStream(filePath);
+    await new Promise((resolve, reject) => {
+      // Pipe the data from the ReadStream to the WriteStream
+      stream.pipe(writeStream)
+        .on('finish', resolve)
+        .on('error', reject);
+    });
+
+  
+   const photo = await clound.uploader.upload(filePath, {resource_type: "auto"})
+
+    try{
+      const newPatient = await models.Patients.create({
+        first_name: args.first_name.trim().toLowerCase(),
+        middle_name: args.middle_name.trim().toLowerCase(),
+        last_name: args.last_name.trim().toLowerCase(),
+        gender: args.gender,
+        area: args.area.trim().toLowerCase(),
+        street_address: args.street_address.trim().toLowerCase(),
+        date_of_birth: args.date_of_birth,
+        code: args.code,
+        patient_phone_number: args.patient_phone_number.trim(),
+        contact_person: args.contact_person.trim().toLowerCase(),
+        contact_person_phone_number: args.contact_person_phone_number,
+        avatar: photo.url,
+        hospital: args.hospital,
+        id_card: args.id_card.trim(),
+      })
+      return newPatient
+    }catch(err){
+      //console.error(err)
+      throw new GraphQLError("Failed to register the patient information")
+    }
+  },
+  deletePatient: async(parent:any, args:any,{models, user}:{models:any, user:any}) => {
+    try{
+      await models.Patients.findOneAndRemove({_id: args.id})
+      return true
+    }catch(err){
+      return false
+    }
+  },
+  newFiche: async(parent:any, args:any,{models, user}:{models:any,user:any}) =>{
+    try{
+      const newFiche = await models.Form_attendance.create({
+        allergie: args.allergie.trim().toLowerCase(),
+        intoxication: args.intoxication.trim().toLowerCase(),
+        atcd_chirurgicaux: args.atcd_chirurgicaux.trim().toLowerCase(),
+        atcd_medicaux: args.atcd_medicaux.trim().toLowerCase(),
+        rh: args.rh.trim().toLowerCase(),
+        gs: args.gs.trim().toLowerCase(),
+        pouls: args.pouls.trim().toLowerCase(),
+        temperature: args.temperature.trim().toLowerCase(),
+        poids: args.poids.trim().toLowerCase(),
+        taille: args.taille.trim().toLowerCase(),
+        ta: args.ta.trim().toLowerCase(),
+        observations: args.observations.trim().toLowerCase(),
+        prescription: args.prescription.trim().toLowerCase(),
+        patient: args.patient.trim(),
+        users: user.id
+      })
+      return newFiche
+    }catch(err){
+      console.error(err)
+      throw new GraphQLError("Failed to register the patient fiche")
+    }
+  }
+
+
 };//end of the Mutation
 
 
