@@ -14,7 +14,7 @@ export const Mutation = {
   newHospital: async (
     parent: any,
     args: any,
-    { models, user }: { models: any; user: any }
+    { models, user, clound }: { models: any; user: any, clound:any }
   ) => {
 
     const checkHospital = await models.hospitals.findOne({ 
@@ -24,10 +24,33 @@ export const Mutation = {
     if(checkHospital){
       throw new GraphQLError("hospital name already exist")
     }else{
+
+      const {filename, createReadStream} = await args.logo;
+
+      const stream = createReadStream()
+
+     // Generate a temporary file path
+    const filePath = resolve(`./logo/${filename}`);
+
+    // Create a writable stream to save the file temporarily
+    const writeStream = createWriteStream(filePath);
+    await new Promise((resolve, reject) => {
+      // Pipe the data from the ReadStream to the WriteStream
+      stream.pipe(writeStream)
+        .on('finish', resolve)
+        .on('error', reject);
+    });
+
+  
+     const logo = await clound.uploader.upload(filePath, {
+       resource_type: "auto",
+     });
+
       const hospital = await models.hospitals.create({
         name: args.name.trim().toLowerCase(),
         address: args.address.trim(),
         city: args.city,
+        logo: logo.url,
         category: args.category.trim().toLowerCase(),
         user: "644e4dbb74c80833df3b3f8b"
       });

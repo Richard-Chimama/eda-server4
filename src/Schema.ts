@@ -23,6 +23,7 @@ export const typeDefs = `#graphql
     name: String!
     address: String!
     city: String!
+    logo: Upload
     user: [Users]
     category: String!
     createdAt: DateTime!
@@ -96,7 +97,7 @@ export const typeDefs = `#graphql
 
   type Mutation{
     #Hospitals mutations
-    newHospital(name: String!, address: String!, city:String!, category:String!, user: String): Hospital!
+    newHospital(name: String!, address: String!, city:String!, logo:Upload, category:String!, user: String): Hospital!
     updateHospital(id: ID!, name: String, address: String, city:String,  user:String): Hospital
     deleteHospital(id: ID!): Boolean!
 
