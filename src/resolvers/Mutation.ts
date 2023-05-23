@@ -257,6 +257,47 @@ export const Mutation = {
       console.error(err)
       throw new GraphQLError("Failed to register the patient fiche")
     }
+  },
+  updateFiche:  async(parent:any, args:any,{models, user}:{models:any,user:any}) =>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to update a hospital");
+    }
+
+    try{
+      const formAttendance = await models.Form_attendance.findById(args.id);
+      formAttendance.users.push(user.id);
+
+
+     return await models.Form_attendance.findOneAndUpdate(
+        {
+          _id: args.id,
+        },
+        {
+          $set:{
+           /*  allergie: args.allergie,
+            intoxication: args.intoxication,
+            atcd_chirurgicaux: args.atcd_chirurgicaux,
+            atcd_medicaux: args.atcd_medicaux,
+            rh: args.rh,
+            gs: args.gs,
+            pouls: args.pouls,
+            temperature: args.temperature,
+            poids: args.poids,
+            taille: args.taille,
+            ta: args.ta,
+            observations: args.observations, */
+            prescription: args.prescription,
+          }
+        },{
+          new: true
+        }
+      )
+
+    }catch(err:any){
+      throw new Error(err)
+    }
+
+    
   }
 
 
