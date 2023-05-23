@@ -9,7 +9,6 @@ import { resolve } from "path";
 dotenv.config()
 
 const JWT_SECRETE:any = "edaprojectformybrother"
-//const require = createRequire(import.meta.url)
 
 export const Mutation = {
   newHospital: async (
