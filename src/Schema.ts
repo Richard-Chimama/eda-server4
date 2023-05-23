@@ -83,6 +83,7 @@ export const typeDefs = `#graphql
     users: [Users!]!
     user( email: String!): Users
     me: Users!
+    logout: Boolean!
 
     #Patients query
     patients: [Patients!]!

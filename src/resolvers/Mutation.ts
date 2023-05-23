@@ -139,8 +139,16 @@ export const Mutation = {
               new: true
             }
           )
+
+          const expiresInDays = 1;
+          const expirationTime = Math.floor(Date.now() / 1000) + expiresInDays * 24 * 60 * 60;
+      
+          const payload = {
+            userId: user._id,
+            exp: expirationTime,
+          }
     
-          return jwt.sign({ id: user._id }, JWT_SECRETE);
+          return jwt.sign(payload, JWT_SECRETE);
         } catch (err) {
           console.log(err);
           throw new Error("Error creating account");
@@ -176,8 +184,17 @@ export const Mutation = {
       throw new GraphQLError("Error signing in");
     }
 
+    // Expiration time in seconds (e.g., 1 days)
+    const expiresInDays = 1;
+    const expirationTime = Math.floor(Date.now() / 1000) + expiresInDays * 24 * 60 * 60;
+
+    const payload = {
+      userId: user._id,
+      exp: expirationTime,
+    }
+
     //create and return the json web token
-    return jwt.sign({ id: user._id }, JWT_SECRETE);
+    return jwt.sign(payload, JWT_SECRETE);
   }, //end of signing in
 
   //create a patient
@@ -236,20 +253,20 @@ export const Mutation = {
   newFiche: async(parent:any, args:any,{models, user}:{models:any,user:any}) =>{
     try{
       const newFiche = await models.Form_attendance.create({
-        allergie: args.allergie.trim().toLowerCase(),
-        intoxication: args.intoxication.trim().toLowerCase(),
-        atcd_chirurgicaux: args.atcd_chirurgicaux.trim().toLowerCase(),
-        atcd_medicaux: args.atcd_medicaux.trim().toLowerCase(),
-        rh: args.rh.trim().toLowerCase(),
-        gs: args.gs.trim().toLowerCase(),
-        pouls: args.pouls.trim().toLowerCase(),
-        temperature: args.temperature.trim().toLowerCase(),
-        poids: args.poids.trim().toLowerCase(),
-        taille: args.taille.trim().toLowerCase(),
-        ta: args.ta.trim().toLowerCase(),
-        observations: args.observations.trim().toLowerCase(),
-        prescription: args.prescription.trim().toLowerCase(),
-        patient: args.patient.trim(),
+        allergie: args.allergie,
+        intoxication: args.intoxication,
+        atcd_chirurgicaux: args.atcd_chirurgicaux,
+        atcd_medicaux: args.atcd_medicaux,
+        rh: args.rh,
+        gs: args.gs,
+        pouls: args.pouls,
+        temperature: args.temperature,
+        poids: args.poids,
+        taille: args.taille,
+        ta: args.ta,
+        observations: args.observations,
+        prescription: args.prescription,
+        patient: args.patient,
         users: user.id
       })
       return newFiche

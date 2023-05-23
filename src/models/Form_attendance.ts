@@ -9,7 +9,7 @@ const form_attendance_Schema = new mongoose.Schema(
         rh:{type:String, required: false},
         gs:{type:String, required: false},
         pouls:{type:String, required: false},
-        temperatures:{type:String, required: false},
+        temperature:{type:String, required: false},
         poids:{type:String, required: false},
         taille:{type:String, required: false},
         ta:{type:String, required: false},

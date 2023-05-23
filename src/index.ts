@@ -83,9 +83,13 @@ app.use(
     const getUser = (token:any)  =>{
         if(token){
             try{
+                
                 //return the user information from the token
                 return jwt.verify(token, JWT_SECRETE)
-            }catch(err){
+            }catch(err:any){
+              if(err.name === 'TokenExpiredError'){
+                throw new Error('Session has expired')
+              }
                 //uf there's a problem with the token, throw am error
                 throw new Error('Session invalid')
             }
