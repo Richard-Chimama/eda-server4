@@ -162,6 +162,6 @@ export const Query = {
         }catch(err){
             throw new GraphQLError("failed to return the fiche for the patient")
         }
-    },
+    }
 
 }

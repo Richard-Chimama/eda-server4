@@ -83,6 +83,7 @@ export const typeDefs = `#graphql
     users: [Users!]!
     user( email: String!): Users
     me: Users!
+    logout: Boolean!
 
     #Patients query
     patients: [Patients!]!
@@ -115,6 +116,7 @@ export const typeDefs = `#graphql
             rh: String, gs: String, pouls: String, temperature: String, poids: String, taille: String,
             ta:String, observations: String, prescription: String, patient:String!): Form_attendance!
     updateFiche(id:String!, prescription: String): Form_attendance!
+
 
   }
 `;
