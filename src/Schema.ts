@@ -115,9 +115,8 @@ export const typeDefs = `#graphql
     newFiche(allergie:String, intoxication: String, atcd_chirurgicaux: String, atcd_medicaux: String,
             rh: String, gs: String, pouls: String, temperature: String, poids: String, taille: String,
             ta:String, observations: String, prescription: String, patient:String!): Form_attendance!
-    updateFiche(allergie:String, intoxication: String, atcd_chirurgicaux: String, atcd_medicaux: String,
-            rh: String, gs: String, pouls: String, temperature: String, poids: String, taille: String,
-            ta:String, observations: String, prescription: String, patient:String!): Form_attendance!
+    updateFiche(id:String!, prescription: String): Form_attendance!
+
 
   }
 `;
