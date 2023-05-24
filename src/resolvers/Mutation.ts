@@ -222,6 +222,10 @@ export const Mutation = {
   //create a patient
   newPatient: async(parent:any, args:any, {models, user, clound}:{models:any, user:any, clound:any})=>{
 
+    if (!user) {
+      throw new GraphQLError("You must be signed in to register a patient");
+    }
+
     const {filename, createReadStream} = await args.avatar;
     //const filename = uuidv4(); // Generate a unique filename
     const stream = createReadStream()
