@@ -24,7 +24,6 @@ export const Mutation = {
     if(checkHospital){
       throw new GraphQLError("hospital name already exist")
     }else{
-
       const {filename, createReadStream} = await args.logo;
 
       const stream = createReadStream()

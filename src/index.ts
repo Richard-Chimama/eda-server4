@@ -43,7 +43,7 @@ const httpServer:any = http.createServer(app);
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    csrfPrevention: true,
+    csrfPrevention: false,// causes risks in the application when its turned off
     cache: 'bounded',
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
