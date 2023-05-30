@@ -268,6 +268,9 @@ export const Mutation = {
     }
   },
   deletePatient: async(parent:any, args:any,{models, user}:{models:any, user:any}) => {
+    if(!user){
+      throw new GraphQLError("You must signin to submit a fich")
+    }
     try{
       await models.Patients.findOneAndRemove({_id: args.id})
       return true
@@ -276,6 +279,10 @@ export const Mutation = {
     }
   },
   newFiche: async(parent:any, args:any,{models, user}:{models:any,user:any}) =>{
+    if(!user){
+      throw new GraphQLError("You must signin to submit a fich")
+    }
+
     try{
       const newFiche = await models.Form_attendance.create({
         allergie: args.allergie,
