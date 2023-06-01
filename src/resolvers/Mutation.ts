@@ -299,7 +299,7 @@ export const Mutation = {
         observations: args.observations,
         prescription: args.prescription,
         patient: args.patient,
-        users: user.id
+        users: args.user
       })
       return newFiche
     }catch(err){
