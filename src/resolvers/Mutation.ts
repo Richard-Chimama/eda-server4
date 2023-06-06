@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import { GraphQLError } from 'graphql';
 import dotenv from "dotenv"
-import { createWriteStream } from "fs";
+import { createReadStream, createWriteStream } from "fs";
 import { resolve } from "path";
 
 
@@ -106,14 +106,14 @@ export const Mutation = {
     if (!user) {
       throw new GraphQLError("You must be signed in to delete a hospital");
     }
-    /*const findUser = await models.hospitals.findById(args.id);
+    const findUser = await models.hospitals.findById(args.id);
     if (findUser && String(findUser.owner) !== user.id) {
       throw new GraphQLError("You don't have permission to delete", {
         extensions: {
           code: "UNAUTHORIZED",
         },
       });
-    }*/
+    }
     try {
       await models.hospitals.findOneAndRemove({ _id: args.id });
       return true;
@@ -125,8 +125,8 @@ export const Mutation = {
   //authotetication signup
   signUp: async (
     parent: any,
-    { username, email, password, role, cnop, hospital }:{username:string, email:any, password:any, role:any, hospital:any, cnop:any},
-    { models }: { models: any }
+    { username, email, password, avatar, role, cnop, hospital }:{username:string, email:any, password:any,avatar:any, role:any, hospital:any, cnop:any},
+    { models, clound }: { models: any, clound:any }
   ) => {
     email = email.trim().toLowerCase();
     const hashed = await bcrypt.hash(password, 10);
@@ -134,6 +134,21 @@ export const Mutation = {
     const checkUser = await models.Users.findOne({
       $or: [{ email: email}]
     })
+
+
+    const {filename, createReadStream} = await avatar 
+    const stream = createReadStream()
+
+    const filePath = resolve(`./upload/${filename}_${emailHashed}`)
+
+    const writeStream = createWriteStream(filePath)
+    await new Promise((resolve, reject) =>{
+      stream.pipe(writeStream)
+        .on('finish', resolve)
+        .on('error', reject);
+    })
+
+    const photo = await clound.uploader.upload(filePath, {resource_type: "auto"})
 
     //if the user is found, throw authentication error
     if(checkUser) {
@@ -145,7 +160,7 @@ export const Mutation = {
             email,
             password: hashed,
             role,
-            avatar:`https://www.gravatar.com/avatar/${emailHashed}`,
+            avatar: photo.url,
             cnop,
             hospital,
           });
@@ -351,6 +366,10 @@ export const Mutation = {
 
 
 };//end of the Mutation
+
+
+
+
 
 
 

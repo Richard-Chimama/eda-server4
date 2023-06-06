@@ -11,7 +11,7 @@ export const typeDefs = `#graphql
     id: ID!,
     username: String!
     email: String!
-    avatar: String
+    avatar: Upload
     cnop: String
     password: String!
     role: String
@@ -102,7 +102,7 @@ export const typeDefs = `#graphql
     deleteHospital(id: ID!): Boolean!
 
     #Users
-    signUp(username: String!, email: String!, password: String!, cnop: String, role: String!, avatar: String, hospital: String! ):String!
+    signUp(username: String!, email: String!, password: String!, cnop: String, role: String!, avatar: Upload, hospital: String! ):String!
     signIn( email: String!, password: String!): String!
 
 
