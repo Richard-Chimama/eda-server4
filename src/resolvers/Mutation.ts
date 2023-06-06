@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import { GraphQLError } from 'graphql';
 import dotenv from "dotenv"
-import { createReadStream, createWriteStream } from "fs";
+import {createWriteStream } from "fs";
 import { resolve } from "path";
 
 

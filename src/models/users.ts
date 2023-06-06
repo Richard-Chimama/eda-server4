@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema(
         },
         avatar:{
             type: String,
+            required: false
         },
         hospital:[{
             type: mongoose.Schema.Types.ObjectId,
