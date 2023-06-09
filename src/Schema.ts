@@ -71,6 +71,16 @@ export const typeDefs = `#graphql
     users: [Users]
   }
 
+  type Calendar{
+    id: ID!
+    title: String!
+    desc: String
+    start: DateTime!
+    end: DateTime!
+    hospital: Hospital
+    user: Users
+  }
+
   # The "Query" type is special: it lists all of the available queries that
   # clients can execute, along with the return type for each. In this
   # case, the "books" query returns an array of zero or more Books (defined above).
@@ -93,6 +103,9 @@ export const typeDefs = `#graphql
     #Fiche
     form_attendances: [Form_attendance]!
     form_attendance(id: ID!): Form_attendance!
+
+    #Calendar
+    calendar_by_hospital(hospitalId:String!): [Calendar]!
   }
 
   type Mutation{
@@ -117,6 +130,10 @@ export const typeDefs = `#graphql
             rh: String, gs: String, pouls: String, temperature: String, poids: String, taille: String,
             ta:String, observations: String, prescription: String, user: String! patient:String!): Form_attendance!
     updateFiche(id:String!, prescription: String): Form_attendance!
+
+
+    #new events in the calendar
+    newEvent(start: DateTime!, end: DateTime!, title: String!, desc: String, hospital:String!, user: String!): Calendar!
 
 
   }

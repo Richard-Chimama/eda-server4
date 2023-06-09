@@ -360,8 +360,29 @@ export const Mutation = {
     }catch(err:any){
       throw new Error(err)
     }
+  },
+  newEvent: async(parent:any, args:any,{models, user}:{models:any,user:any})=>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to create an event");
+    }
 
-    
+    try{
+      const newEvent = await models.Calendar.create({
+        title: args.title,
+        desc: args.desc,
+        start: args.start,
+        end: args.end,
+        hospital: args.hospital,
+        user: args.user
+      })
+
+      return newEvent
+
+    }catch(err){
+      console.log(err)
+      throw new GraphQLError("failed to create a calendar event!")
+    }
+
   }
 
 

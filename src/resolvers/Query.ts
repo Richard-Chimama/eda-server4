@@ -162,6 +162,32 @@ export const Query = {
         }catch(err){
             throw new GraphQLError("failed to return the fiche for the patient")
         }
+    },
+    calendar_by_hospital: async (parent:any, args:any, {models, user}:Params)=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+
+        try {
+            const events = await models.Calendar.find({ hospitalId: args.hospital });
+            const populatedEvents = await Promise.all(
+              events.map(async (event: any) => {
+                try {
+                  return await event.populate([
+                    { path: "hospital", model: "Hospitals" },
+                    { path: "user", model: "Users" },
+                  ]);
+                } catch (error) {
+                  console.error(error);
+                  throw error; // Rethrow the error to be caught by the outer try/catch block
+                }
+              })
+            );
+            return await populatedEvents;
+          } catch (error) {
+            console.error(error);
+            throw new GraphQLError("Failed to retrieve calendar events!");
+          }
     }
 
 }
