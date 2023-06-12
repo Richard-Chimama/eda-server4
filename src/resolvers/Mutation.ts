@@ -16,6 +16,7 @@ export const Mutation = {
     args: any,
     { models, user, clound }: { models: any; user: any, clound:any }
   ) => {
+    let logo, filePath
 
     const checkHospital = await models.hospitals.findOne({ 
       $or: [{name: args.name.trim().toLowerCase()}]
@@ -24,38 +25,48 @@ export const Mutation = {
     if(checkHospital){
       throw new GraphQLError("hospital name already exist")
     }else{
-      const {filename, createReadStream} = await args.logo;
-
-      const stream = createReadStream()
-
-     // Generate a temporary file path
-    const filePath = resolve(`./logo/${filename}`);
-
-    // Create a writable stream to save the file temporarily
-    const writeStream = createWriteStream(filePath);
-    await new Promise((resolve, reject) => {
-      // Pipe the data from the ReadStream to the WriteStream
-      stream.pipe(writeStream)
-        .on('finish', resolve)
-        .on('error', reject);
-    });
-
+      
+      if(args.logo){
+        const {filename, createReadStream} = await args.logo;
+        const stream = createReadStream()
   
-     const logo = await clound.uploader.upload(filePath, {
-       resource_type: "auto",
-     });
-
-      const hospital = await models.hospitals.create({
-        name: args.name.trim().toLowerCase(),
-        address: args.address.trim(),
-        city: args.city,
-        logo: logo.url,
-        category: args.category.trim().toLowerCase(),
-        user: "644e4dbb74c80833df3b3f8b"
+       // Generate a temporary file path
+      filePath = resolve(`./logo/${filename}`);
+  
+      // Create a writable stream to save the file temporarily
+      const writeStream = createWriteStream(filePath);
+      await new Promise((resolve, reject) => {
+        // Pipe the data from the ReadStream to the WriteStream
+        stream.pipe(writeStream)
+          .on('finish', resolve)
+          .on('error', reject);
       });
+  
+    
+       logo = await clound.uploader.upload(filePath, {
+         resource_type: "auto",
+       });
+      }
+
+      try{
+        const hospital = await models.hospitals.create({
+          name: args.name.trim().toLowerCase(),
+          address: args.address.trim(),
+          city: args.city,
+          logo: args.logo ? logo.url : null,
+          category: args.category.trim().toLowerCase(),
+          user: "644e4dbb74c80833df3b3f8b"
+        });
+  
+  
+        return hospital
+
+      }catch(err){
+        console.log(err)
+        throw new GraphQLError("Failed to register the hospital")
+      }
 
 
-      return hospital
     }
 
   },
@@ -130,25 +141,31 @@ export const Mutation = {
   ) => {
     email = email.trim().toLowerCase();
     const hashed = await bcrypt.hash(password, 10);
-    const emailHashed = await bcrypt.hash(email,10)
+    //const emailHashed = await bcrypt.hash(email,10) not using it for now
     const checkUser = await models.Users.findOne({
       $or: [{ email: email}]
     })
 
+    let photo
 
-    const {filename, createReadStream} = await avatar 
-    const stream = createReadStream()
+    if(avatar){
+      const {filename, createReadStream} = await avatar 
+      const stream = createReadStream()
+  
+      const filePath = resolve(`./upload/${filename}`)
+  
+      const writeStream = createWriteStream(filePath)
+      await new Promise((resolve, reject) =>{
+        stream.pipe(writeStream)
+          .on('finish', resolve)
+          .on('error', reject);
+      })
 
-    const filePath = resolve(`./upload/${filename}_${emailHashed}`)
+      photo = await clound.uploader.upload(filePath, {resource_type: "auto"})
 
-    const writeStream = createWriteStream(filePath)
-    await new Promise((resolve, reject) =>{
-      stream.pipe(writeStream)
-        .on('finish', resolve)
-        .on('error', reject);
-    })
+    }
 
-    const photo = await clound.uploader.upload(filePath, {resource_type: "auto"})
+
 
     //if the user is found, throw authentication error
     if(checkUser) {
@@ -160,7 +177,7 @@ export const Mutation = {
             email,
             password: hashed,
             role,
-            avatar: photo.url,
+            avatar: avatar? photo.url: null,
             cnop,
             hospital,
           });

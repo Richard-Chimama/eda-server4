@@ -169,7 +169,7 @@ export const Query = {
         }
 
         try {
-            const events = await models.Calendar.find({ hospitalId: args.hospital });
+            const events = await models.Calendar.find({"hospital": args.hospitalId});
             const populatedEvents = await Promise.all(
               events.map(async (event: any) => {
                 try {
