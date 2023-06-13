@@ -185,9 +185,82 @@ export const Query = {
             );
             return await populatedEvents;
           } catch (error) {
-            console.error(error);
             throw new GraphQLError("Failed to retrieve calendar events!");
           }
-    }
+    },
+    lab_by_hospital:async (parent:any, args:any, {models, user}:Params)=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+        try{
+            const labs = await models.Lab.find({hospital: args.hospital})
+            const populatedLabs = await Promise.all(
+                labs.map(async (l:any)=>{
+                    try{
+                        return await l.populate([
+                            {path: "hospital", model: "Hospitals"},
+                            {path: "patient", model: "Patients"},
+                            {path: "users", model: "Users"},
+                        ])
+                    }catch(error){
+                        throw new GraphQLError("Failed to retrieve lab documents!!")
+                    }
+                })
+            )
+            return await populatedLabs
+        }catch(error){
+            throw new GraphQLError("Failed to retrieve lab documents!!")
+        }
 
+    },//end of lab
+    lab_by_patient:async (parent:any, args:any, {models, user}:Params)=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+        try{
+            const labs = await models.Lab.find({patientId: args.patient})
+            const patientDocs = labs.filter((p:any)=> p.patient === args.patient)
+            const populatedLabs = await Promise.all(
+                patientDocs.map(async (p:any)=>{
+                    try{
+                        return await p.populate([
+                            {path: "hospital", model: "Hospitals"},
+                            {path: "patient", model: "Patients"},
+                            {path: "users", model: "Users"},
+                        ])
+                    }catch(error){
+                        throw new GraphQLError("Failed to retrieve lab documents!!")
+                    }
+                })
+            )
+            return await populatedLabs
+        }catch(error){
+            throw new GraphQLError("Failed to retrieve lab documents!!")
+        }
+    },
+    lab:async (parent:any, args:any, {models, user}:Params)=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+        try{
+            const labs = await models.Lab.find()
+            const populatedLabs = await Promise.all(
+                labs.map(async (p:any)=>{
+                    try{
+                        return await p.populate([
+                            {path: "hospital", model: "Hospitals"},
+                            {path: "patient", model: "Patients"},
+                            {path: "users", model: "Users"},
+                        ])
+                    }catch(error){
+                        throw new GraphQLError("Failed to retrieve lab documents!!")
+                    }
+                })
+            )
+            return await populatedLabs
+        }catch(error){
+            throw new GraphQLError("Failed to retrieve lab documents!!")
+        }
+
+    }
 }

@@ -41,15 +41,15 @@ const httpServer:any = http.createServer(app);
 // Same ApolloServer initialization as before, plus the drain plugin
 // for our httpServer.
 const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    csrfPrevention: false,// causes risks in the application when its turned off
-    cache: 'bounded',
-    plugins: [
-      ApolloServerPluginDrainHttpServer({ httpServer }),
-      ApolloServerPluginLandingPageLocalDefault({embed: true})
-    ],
-  });
+  typeDefs,
+  resolvers,
+  csrfPrevention: false, // causes risks in the application when its turned off
+  cache: "bounded",
+  plugins: [
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+    ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+  ],
+});
   // Ensure we wait for our server to start
   await server.start();
 

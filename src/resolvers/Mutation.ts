@@ -400,6 +400,82 @@ export const Mutation = {
       throw new GraphQLError("failed to create a calendar event!")
     }
 
+  },
+  new_lab_fiche: async(parent:any, args:any,{models, user}:{models:any,user:any})=>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to create an event");
+    }
+    try{
+      const newLab = await models.Lab.create({
+        h_pyloria: args.h_pyloria,
+        gb: args.gb,
+        fl: args.fl,
+        gr: args.gr,
+        hb: args.hb,
+        hct: args.hct,
+        vs: args.vs,
+        frottis_vaginal: args.frottis_vaginal,
+        temps_saignement: args.temps_saignement,
+        temps_coagulation: args.temps_coagulation,
+        plq_sanguine: args.plq_sanguine,
+        autres: args.autres,
+        ex_direct: args.ex_direct,
+        enrichissement: args.enrichissement,
+        sediment_urinaire: args.sediment_urinaire,
+        sucre: args.sucre,
+        albuminurie: args.albuminurie,
+        gram: args.gram,
+        ziell: args.ziell,
+        encre_chine: args.encre_chine,
+        hemoculture_ab: args.hemoculture_ab,
+        coproculture_ab: args.coproculture_ab,
+        uroculture_ab: args.uroculture_ab,
+        spermatogramme: args.spermatogramme,
+        fv: args.fv,
+        widal: args.widal,
+        hiv: args.hiv,
+        t_covid: args.t_covid,
+        groupe_sanguin: args.groupe_sanguin,
+        test_grossesse: args.test_grossesse,
+        rpr: args.rpr,
+        hbs_ag: args.hbs_ag,
+        hepati_b: args.hepati,
+        gs: args.gs,
+        rh: args.rh,
+        compatibilite: args.compatibilite,
+        electrophose: args.electrophose,
+        test_emmel: args.test_emmel,
+        glycemie: args.glycemie,
+        uree: args.uree,
+        creatinine: args.creatinine,
+        lipides_totaux: args.lipides_totaux,
+        cholesterol: args.cholesterol,
+        acide_urique: args.acide_urique,
+        triglyceride: args.triglyceride,
+        bil_t: args.bil_t,
+        bil_d: args.bil_d,
+        bil_l: args.bil_l,
+        cnol_total: args.cnol_total,
+        sgot: args.sgot,
+        sgpt: args.sgpt,
+        prot_24h: args.prot_24h,
+        proteine_t: args.proteine_t,
+        calcemie: args.calcemie,
+        potassium: args.potassium,
+        sodium: args.sodium,
+        magnesium: args.magnesium,
+        chlore: args.chlore,
+        glycosurie: args.glycosurie,
+        proteinuire: args.proteinuire,
+        lcr: args.lcr,
+        patient: args.patient,
+        hospital: args.hospital,
+        users: args.users
+      })
+      return newLab
+    }catch(err){
+      throw new GraphQLError("failed to create new lab fiche")
+    }
   }
 
 
