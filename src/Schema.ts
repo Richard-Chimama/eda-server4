@@ -178,7 +178,8 @@ export const typeDefs = `#graphql
     calendar_by_hospital(hospitalId:String!): [Calendar]!
 
     #Lab
-    lab(hospitalId:String!): [Lab]!
+    lab_by_hospital(hospitalId:String!): [Lab]!
+    lab_by_patient(patientId:String!): [Lab]!
   }
 
   type Mutation{
