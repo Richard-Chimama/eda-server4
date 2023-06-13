@@ -93,6 +93,8 @@ export const typeDefs = `#graphql
     glycosurie: String,
     proteinuire: String,
     lcr: String,
+    createdAt: DateTime!
+    updatedAt: DateTime!
     patient: Patients!,
     hospital: Hospital,
     users: [Users]
@@ -174,6 +176,9 @@ export const typeDefs = `#graphql
 
     #Calendar
     calendar_by_hospital(hospitalId:String!): [Calendar]!
+
+    #Lab
+    lab(hospitalId:String!): [Lab]!
   }
 
   type Mutation{
@@ -202,8 +207,19 @@ export const typeDefs = `#graphql
 
     #new events in the calendar
     newEvent(start: DateTime!, end: DateTime!, title: String!, desc: String, hospital:String!, user: String!): Calendar!
+    
 
-
+    #Lab
+    Lab(  h_pyloria: String, gb: String, fl: String, gr: String, hb: String, hct: String, vs: String, frottis_vaginal: String,
+          temps_saignement: String, temps_coagulation: String, plq_sanguine: String, autres: String, ex_direct: String, enrichissement: String,
+          sediment_urinaire: String, sucre: String, albuminurie: String, gram: String, ziell: String, encre_chine: String,
+          hemoculture_ab: String, coproculture_ab: String, uroculture_ab: String, spermatogramme: String, fv: String, widal: String,
+          hiv: String, t_covid: String, groupe_sanguin: String, test_grossesse: String, rpr: String, hbs_ag: String, hepati_b: String,
+          gs: String, rh: String, compatibilite: String, electrophose: String, test_emmel: String, glycemie: String, uree: String,
+          creatinine: String, lipides_totaux: String, cholesterol: String, acide_urique: String, triglyceride: String, bil_t: String,
+          bil_d: String, bil_l: String, cnol_total: String, sgot: String, sgpt: String, prot_24h: String, proteine_t: String, calcemie: String,
+          potassium: String, sodium: String, magnesium: String, chlore: String, glycosurie: String, proteinuire: String, lcr: String,patient: String!,
+          hospital: String!, users: String!): Lab!
   }
 `;
 
