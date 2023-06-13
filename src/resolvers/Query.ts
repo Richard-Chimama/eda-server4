@@ -237,6 +237,30 @@ export const Query = {
         }catch(error){
             throw new GraphQLError("Failed to retrieve lab documents!!")
         }
+    },
+    lab:async (parent:any, args:any, {models, user}:Params)=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+        try{
+            const labs = await models.Lab.find()
+            const populatedLabs = await Promise.all(
+                labs.map(async (p:any)=>{
+                    try{
+                        return await p.populate([
+                            {path: "hospital", model: "Hospitals"},
+                            {path: "patient", model: "Patients"},
+                            {path: "users", model: "Users"},
+                        ])
+                    }catch(error){
+                        throw new GraphQLError("Failed to retrieve lab documents!!")
+                    }
+                })
+            )
+            return await populatedLabs
+        }catch(error){
+            throw new GraphQLError("Failed to retrieve lab documents!!")
+        }
 
     }
 }

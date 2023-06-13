@@ -180,6 +180,7 @@ export const typeDefs = `#graphql
     #Lab
     lab_by_hospital(hospitalId:String!): [Lab]!
     lab_by_patient(patientId:String!): [Lab]!
+    lab: [Lab]!
   }
 
   type Mutation{
@@ -211,7 +212,7 @@ export const typeDefs = `#graphql
     
 
     #Lab
-    Lab(  h_pyloria: String, gb: String, fl: String, gr: String, hb: String, hct: String, vs: String, frottis_vaginal: String,
+    new_lab_fiche(  h_pyloria: String, gb: String, fl: String, gr: String, hb: String, hct: String, vs: String, frottis_vaginal: String,
           temps_saignement: String, temps_coagulation: String, plq_sanguine: String, autres: String, ex_direct: String, enrichissement: String,
           sediment_urinaire: String, sucre: String, albuminurie: String, gram: String, ziell: String, encre_chine: String,
           hemoculture_ab: String, coproculture_ab: String, uroculture_ab: String, spermatogramme: String, fv: String, widal: String,
