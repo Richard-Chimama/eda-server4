@@ -218,10 +218,9 @@ export const Query = {
             throw new GraphQLError("user not authenticated")
         }
         try{
-            const labs = await models.Lab.find({patientId: args.patient})
-            const patientDocs = labs.filter((p:any)=> p.patient === args.patient)
+            const labs = await models.Lab.find({patient: args.patientId})
             const populatedLabs = await Promise.all(
-                patientDocs.map(async (p:any)=>{
+                labs.map(async (p:any)=>{
                     try{
                         return await p.populate([
                             {path: "hospital", model: "Hospitals"},

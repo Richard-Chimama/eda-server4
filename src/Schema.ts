@@ -97,7 +97,11 @@ export const typeDefs = `#graphql
     updatedAt: DateTime!
     patient: Patients!,
     hospital: Hospital,
-    users: [Users]
+    users: [Users],
+    ge: String,
+    gf: String,
+    snip:String,
+    sang_autres: String
   }
 
   type Patients{
@@ -221,7 +225,7 @@ export const typeDefs = `#graphql
           creatinine: String, lipides_totaux: String, cholesterol: String, acide_urique: String, triglyceride: String, bil_t: String,
           bil_d: String, bil_l: String, cnol_total: String, sgot: String, sgpt: String, prot_24h: String, proteine_t: String, calcemie: String,
           potassium: String, sodium: String, magnesium: String, chlore: String, glycosurie: String, proteinuire: String, lcr: String,patient: String!,
-          hospital: String!, users: String!): Lab!
+          hospital: String!, users: String!, ge: String, gf: String, snip: String, sang_autres: String): Lab!
   }
 `;
 

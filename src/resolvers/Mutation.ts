@@ -453,7 +453,11 @@ export const Mutation = {
         lcr: args.lcr,
         patient: args.patient,
         hospital: args.hospital,
-        users: args.users
+        users: args.users,
+        ge: args.ge,
+        gf: args.gf,
+        snip: args.snip,
+        sang_autres: args.sang_autres
       })
       return newLab
     }catch(err){
