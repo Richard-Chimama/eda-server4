@@ -396,14 +396,13 @@ export const Mutation = {
       return newEvent
 
     }catch(err){
-      console.log(err)
       throw new GraphQLError("failed to create a calendar event!")
     }
 
   },
   new_lab_fiche: async(parent:any, args:any,{models, user}:{models:any,user:any})=>{
     if (!user) {
-      throw new GraphQLError("You must be signed in to create an event");
+      throw new GraphQLError("You must be signed in");
     }
     try{
       const newLab = await models.Lab.create({
@@ -470,11 +469,47 @@ export const Mutation = {
         lcr: args.lcr,
         patient: args.patient,
         hospital: args.hospital,
-        users: args.users
+        users: args.users,
+        ge: args.ge,
+        gf: args.gf,
+        snip: args.snip,
+        sang_autres: args.sang_autres
       })
       return newLab
     }catch(err){
       throw new GraphQLError("failed to create new lab fiche")
+    }
+  },
+  new_fiche_prenatale: async(parent:any, args:any,{models, user}:{models:any,user:any})=>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in");
+    }
+    try{
+      const new_fiche_prenatale = await models.Fiche_prenatale.create({
+        ddr: args.ddr,
+        dpa: args.dpa,
+        above19: args.above19,
+        above15: args.above15,
+        tbc: args.tbc,
+        hta: args.hta,
+        scass: args.scass,
+        dbt: args.dbt,
+        car: args.car,
+        raa: args.raa,
+        syphylis: args.syphylis,
+        vihsida: args.vihsida,
+        viol: args.viol,
+        pep: args.pep,
+        fobrome_uterin: args.fobrome_uterin,
+        fracture_bassin: args.fracture_bassin,
+        patient: args.patient,
+        hospital: args.hospital,
+        users: args.users
+      })
+      return new_fiche_prenatale
+    }catch(err){
+      console.log(err)
+      throw new GraphQLError("failed to create fiche prenatale")
     }
   }
 

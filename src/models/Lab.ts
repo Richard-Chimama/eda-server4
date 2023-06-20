@@ -62,6 +62,10 @@ const labSchema = new mongoose.Schema({
     glycosurie: {type:String, required: false},
     proteinuire: {type:String, required: false},
     lcr: {type:String, required: false},
+    ge: {type:String, required: false},
+    gf: {type:String, required: false},
+    snip: {type:String, required: false},
+    sang_autres: {type:String, required: false},
     patient: {type:mongoose.Schema.Types.ObjectId, ref: "Patients"},
     hospital: {type:mongoose.Schema.Types.ObjectId, ref:"Hospitals"},
     users: [{
