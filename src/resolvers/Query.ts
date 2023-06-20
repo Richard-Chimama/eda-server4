@@ -261,5 +261,29 @@ export const Query = {
             throw new GraphQLError("Failed to retrieve lab documents!!")
         }
 
+    },
+    fiche_prenatale: async (parent:any, args:any, {models, user}:Params)=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+        try{
+            const fiche_prenatale = await models.Fiche_prenatale.find({patient: args.patientId})
+            const populatedFiche = await Promise.all(
+                fiche_prenatale.map(async (p:any)=>{
+                    try{
+                        return await p.populate([
+                            {path: "hospital", model: "Hospitals"},
+                            {path: "patient", model: "Patients"},
+                            {path: "users", model: "Users"},
+                        ])
+                    }catch(error){
+                        throw new GraphQLError("Failed to retrieve lab documents!!")
+                    }
+                })
+            )
+            return await populatedFiche
+        }catch(error){
+            throw new GraphQLError("Failed to retrieve lab documents!!")
+        }
     }
 }

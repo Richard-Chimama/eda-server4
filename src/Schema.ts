@@ -104,6 +104,31 @@ export const typeDefs = `#graphql
     sang_autres: String
   }
 
+  type Fiche_prenatale {
+    id: ID!
+    ddr: DateTime
+    dpa: DateTime
+    above19: Boolean
+    above15: Boolean
+    tbc: Boolean
+    hta: Boolean
+    scass: Boolean
+    dbt: Boolean
+    car: Boolean
+    raa: Boolean
+    syphylis: Boolean
+    vihsida: Boolean
+    viol: Boolean
+    pep: Boolean
+    fobrome_uterin: Boolean
+    fracture_bassin: Boolean
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    patient: Patients!,
+    hospital: Hospital,
+    users: [Users],
+  }
+
   type Patients{
     id: ID!
     id_card: String!
@@ -185,6 +210,9 @@ export const typeDefs = `#graphql
     lab_by_hospital(hospitalId:String!): [Lab]!
     lab_by_patient(patientId:String!): [Lab]!
     lab: [Lab]!
+
+    #Fiche prenatale
+    fiche_prenatale(patientId:String!): [Fiche_prenatale]!
   }
 
   type Mutation{
@@ -226,6 +254,15 @@ export const typeDefs = `#graphql
           bil_d: String, bil_l: String, cnol_total: String, sgot: String, sgpt: String, prot_24h: String, proteine_t: String, calcemie: String,
           potassium: String, sodium: String, magnesium: String, chlore: String, glycosurie: String, proteinuire: String, lcr: String,patient: String!,
           hospital: String!, users: String!, ge: String, gf: String, snip: String, sang_autres: String): Lab!
+
+
+  #Fiche Prenatale
+  new_fiche_prenatale(ddr: DateTime!, dpa: DateTime!, above19: Boolean, above15: Boolean,
+          tbc: Boolean, hta: Boolean, scass: Boolean, dbt: Boolean, car: Boolean, raa: Boolean,
+          syphylis: Boolean, vihsida: Boolean, viol: Boolean, pep: Boolean, fobrome_uterin: Boolean,
+          fracture_bassin: Boolean, patient: String!,
+          hospital: String!, users: String!): Fiche_prenatale!
+  
   }
 `;
 
