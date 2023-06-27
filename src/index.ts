@@ -34,15 +34,12 @@ import  {useServer}  from 'graphql-ws/lib/use/ws';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import cloudinary from 'cloudinary';
-
 import { typeDefs } from './Schema.js';
 import resolvers from './resolvers/index.js';
 import db from './db.js';
 import models from './models/index.js';
-//import { MongodbPubSub } from 'graphql-mongodb-subscriptions';
 import { PubSub } from 'graphql-subscriptions';
-/* import { RedisPubSub } from 'graphql-redis-subscriptions';
-import * as Redis from 'ioredis'; */
+
 
 
 
