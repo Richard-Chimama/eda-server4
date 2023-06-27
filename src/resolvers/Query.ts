@@ -8,13 +8,16 @@ interface Params{
 export const Query = {
     hospitals: async (parent:any, args:any, {models}:{models:any})=> {
         const hospitals = await models.hospitals.find().limit(100)
-        const bindedHospitalsUsers = hospitals.map((item:any, index:number)=>{
-            const hospital = item.populate("user")
-                .then((user:any) => user)
-                .catch((error:any) => console.log(error))
-
-            return hospital
-        })
+        const bindedHospitalsUsers = await Promise.all(
+            hospitals.map(async(hospital)=>{
+                await hospital.populate([
+                    {path:"user", model: "Users"},
+                    {path:"patients", model: "Patients"},
+                    {path: "patientNotification", model: "PatientNotification"}
+                ])
+                return hospital
+            })
+        )
 
         return bindedHospitalsUsers
     },
@@ -24,7 +27,11 @@ export const Query = {
         }
       const getHospital = await models.hospitals.findById(args.id);
       const hospitalBindedUser = getHospital
-        .populate("user")
+        .populate([
+            {path:"user", model: "Users"},
+            {path:"patients", model: "Patients"},
+            {path: "patientNotification", model: "PatientNotification"}
+        ])
         .then((user: any) => user)
         .catch((error: any) => console.log(error));
 
@@ -61,8 +68,15 @@ export const Query = {
        if (!user) {
         throw new GraphQLError("Error user not found!!");
       }
+       
         const userBindHospital = user
-          .populate("hospital")
+          .populate([
+            {path:"hospital", model: "Hospitals"},
+            {path:"postsNotification", model:"Posts", populate:[
+                {path:"likes", model: "Likes", populate:[{path:"user", model:"Users"}]},
+                {path:"comments", model: "Comments",populate:[{path:"user", model:"Users"}]},
+                {path:"author", model: "Users"}
+            ]}])
           .then((hospital: any) => hospital)
           .catch((error: any) => console.log(error));
 
@@ -284,6 +298,34 @@ export const Query = {
             return await populatedFiche
         }catch(error){
             throw new GraphQLError("Failed to retrieve lab documents!!")
+        }
+    },
+    postsByHospital:async (parent:any, args:any, {models, user}:Params)=>{
+        if(!user){
+            throw new GraphQLError("user not authenticated")
+        }
+        try{
+            const posts = await models.Posts.find({hospital: args.hospitalId})
+            const populatedPosts = await Promise.all(
+                posts.map(async(post)=>{
+                    try{
+                        return await post.populate([
+                            {path:"author", model:"Users"},
+                            {path: "hospital", model: "Hospitals"},
+                            {path:"comments", model: "Comments", populate:[{path:"user", model:"Users"}]},
+                            {path:"likes",model: "Likes", populate:[{path:"user", model:"Users"}]}
+                        ])
+                    }catch(error){
+                        throw new GraphQLError("counldn't return post populate")
+                    }
+                })
+            )
+
+            return populatedPosts
+
+        }catch(err){
+            console.log(err)
+            throw new GraphQLError("Failed to retrieve posts!!")
         }
     }
 }

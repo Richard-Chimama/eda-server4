@@ -25,7 +25,9 @@ const hospitalSchema = new mongoose.Schema({
     user:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users",
-    }]
+    }],
+    patients: [{ type: mongoose.Schema.Types.ObjectId, ref:"Patients"}],
+    patientNotification: [{ type: mongoose.Schema.Types.ObjectId, ref:"PatientNotification"}],
 },{
     timestamps: true
 })

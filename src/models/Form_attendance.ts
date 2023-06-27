@@ -16,7 +16,8 @@ const form_attendance_Schema = new mongoose.Schema(
         observations: {type:String, required: false},
         prescription: {type:String, required: false},
         patient:{type: mongoose.Schema.Types.ObjectId, ref: "Patients"},
-        users: [{type: mongoose.Schema.Types.ObjectId, ref: "Users"}]
+        users: [{type: mongoose.Schema.Types.ObjectId, ref: "Users"}],
+        hospital: {type: mongoose.Schema.Types.ObjectId, ref: "Hospitals"}
     },
     {
         timestamps: true,

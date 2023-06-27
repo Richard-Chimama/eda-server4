@@ -2,11 +2,11 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import { GraphQLError } from 'graphql';
 import dotenv from "dotenv"
-import {createWriteStream } from "fs";
-import { resolve } from "path";
+import { PHOTO_UPLOAD } from "../Functions/Utilities.js";
 
 
 dotenv.config()
+
 
 const JWT_SECRETE:any = "edaprojectformybrother"
 
@@ -16,7 +16,6 @@ export const Mutation = {
     args: any,
     { models, user, clound }: { models: any; user: any, clound:any }
   ) => {
-    let logo, filePath
 
     const checkHospital = await models.hospitals.findOne({ 
       $or: [{name: args.name.trim().toLowerCase()}]
@@ -26,36 +25,17 @@ export const Mutation = {
       throw new GraphQLError("hospital name already exist")
     }else{
       
-      if(args.logo){
-        const {filename, createReadStream} = await args.logo;
-        const stream = createReadStream()
-  
-       // Generate a temporary file path
-      filePath = resolve(`./logo/${filename}`);
-  
-      // Create a writable stream to save the file temporarily
-      const writeStream = createWriteStream(filePath);
-      await new Promise((resolve, reject) => {
-        // Pipe the data from the ReadStream to the WriteStream
-        stream.pipe(writeStream)
-          .on('finish', resolve)
-          .on('error', reject);
-      });
-  
-    
-       logo = await clound.uploader.upload(filePath, {
-         resource_type: "auto",
-       });
-      }
 
       try{
         const hospital = await models.hospitals.create({
           name: args.name.trim().toLowerCase(),
           address: args.address.trim(),
           city: args.city,
-          logo: args.logo ? logo.url : null,
+          logo: args.logo ? await PHOTO_UPLOAD(clound, args.logo) : null,
           category: args.category.trim().toLowerCase(),
-          user: "644e4dbb74c80833df3b3f8b"
+          user: null,
+          patients: null,
+          patientNotification: null
         });
   
   
@@ -136,7 +116,7 @@ export const Mutation = {
   //authotetication signup
   signUp: async (
     parent: any,
-    { username, email, password, avatar, role, cnop, hospital }:{username:string, email:any, password:any,avatar:any, role:any, hospital:any, cnop:any},
+    { username, email, postsNotification, password, avatar, role, cnop, hospital, id_card }:{username:string, email:any, password:any,avatar:any, role:any, id_card:any,postsNotification:any, hospital:any, cnop:any},
     { models, clound }: { models: any, clound:any }
   ) => {
     email = email.trim().toLowerCase();
@@ -146,27 +126,6 @@ export const Mutation = {
       $or: [{ email: email}]
     })
 
-    let photo
-
-    if(avatar){
-      const {filename, createReadStream} = await avatar 
-      const stream = createReadStream()
-  
-      const filePath = resolve(`./upload/${filename}`)
-  
-      const writeStream = createWriteStream(filePath)
-      await new Promise((resolve, reject) =>{
-        stream.pipe(writeStream)
-          .on('finish', resolve)
-          .on('error', reject);
-      })
-
-      photo = await clound.uploader.upload(filePath, {resource_type: "auto"})
-
-    }
-
-
-
     //if the user is found, throw authentication error
     if(checkUser) {
       throw new GraphQLError("email already registered")
@@ -174,24 +133,34 @@ export const Mutation = {
         try {
           const user = await models.Users.create({
             username,
+            id_card,
             email,
             password: hashed,
             role,
-            avatar: avatar? photo.url: null,
+            avatar: avatar? await PHOTO_UPLOAD(clound, avatar): null,
             cnop,
             hospital,
+            postsNotification,
           });
 
-          await models.hospitals.findOneAndUpdate({
-            _id: hospital
-          },{
-            $set:{
-              user: user._id
-            },
-          },{
-              new: true
-            }
-          )
+          const Hospital =  await models.hospitals.findOne({_id: hospital})
+
+          if(Hospital.user === null){
+              await models.hospitals.findOneAndUpdate({
+                _id: hospital
+              },{
+                $set:{
+                  user: user._id
+                },
+              },{
+                  new: true
+                }
+              )
+          }else{
+            Hospital.user.push(user._id)
+            await Hospital.save()
+          }
+
 
           const expiresInDays = 1;
           const expirationTime = Math.floor(Date.now() / 1000) + expiresInDays * 24 * 60 * 60;
@@ -201,9 +170,10 @@ export const Mutation = {
             exp: expirationTime,
           }
     
-          return jwt.sign(payload, JWT_SECRETE);
+          return `${jwt.sign(payload, JWT_SECRETE)} ${user._id}`;
         } catch (err) {
           console.log(err);
+
           throw new Error("Error creating account");
         }
 
@@ -257,25 +227,6 @@ export const Mutation = {
       throw new GraphQLError("You must be signed in to register a patient");
     }
 
-    const {filename, createReadStream} = await args.avatar;
-    //const filename = uuidv4(); // Generate a unique filename
-    const stream = createReadStream()
-
-     // Generate a temporary file path
-    const filePath = resolve(`./upload/${filename}`);
-  
-  // Create a writable stream to save the file temporarily
-    const writeStream = createWriteStream(filePath);
-    await new Promise((resolve, reject) => {
-      // Pipe the data from the ReadStream to the WriteStream
-      stream.pipe(writeStream)
-        .on('finish', resolve)
-        .on('error', reject);
-    });
-
-  
-   const photo = await clound.uploader.upload(filePath, {resource_type: "auto"})
-
     try{
       const newPatient = await models.Patients.create({
         first_name: args.first_name.trim().toLowerCase(),
@@ -289,13 +240,32 @@ export const Mutation = {
         patient_phone_number: args.patient_phone_number.trim(),
         contact_person: args.contact_person.trim().toLowerCase(),
         contact_person_phone_number: args.contact_person_phone_number,
-        avatar: photo.url,
+        avatar: args.avatar? await PHOTO_UPLOAD(clound, args.avatar) : null,
         hospital: args.hospital,
         id_card: args.id_card.trim(),
       })
+
+      const Hospital = await models.hospitals.findOne({_id: args.hospital}) 
+      
+      if(Hospital.patients === null){
+        await models.hospitals.findOneAndUpdate({
+          _id: args.hospital
+        },{
+          $set:{
+            patients: [newPatient._id]
+          },
+        },{
+            new: true
+          }
+        )
+    }else{
+      Hospital.patients.push(newPatient._id)
+      await Hospital.save()
+    }
+
       return newPatient
     }catch(err){
-      //console.error(err)
+      console.error(err)
       throw new GraphQLError("Failed to register the patient information")
     }
   },
@@ -310,7 +280,7 @@ export const Mutation = {
       return false
     }
   },
-  newFiche: async(parent:any, args:any,{models, user}:{models:any,user:any}) =>{
+  newFiche: async(parent:any, args:any,{models, user, pubsub}:{models:any,user:any, pubsub}) =>{
     if(!user){
       throw new GraphQLError("You must signin to submit a fich")
     }
@@ -331,8 +301,36 @@ export const Mutation = {
         observations: args.observations,
         prescription: args.prescription,
         patient: args.patient,
+        hospital: args.hospital,
         users: args.user
       })
+
+      const notification = await models.PatientNotification.create({
+        message: `une nouvelle fiche de consultation`,
+        patient: args.patient
+      })
+
+      pubsub.publish(`ROOM${args.hospital}`, {notification: notification})
+
+      const Hospital = await models.hospitals.findOne({_id: args.hospital}) 
+      if(Hospital.patientNotification === null){
+        await models.hospitals.findOneAndUpdate({
+          _id: args.hospital
+        },{
+          $set:{
+            patientNotification: notification._id
+          },
+        },{
+            new: true
+          }
+        )
+    }else{
+      Hospital.patientNotification.push(notification._id)
+      await Hospital.save()
+    }
+
+
+
       return newFiche
     }catch(err){
       console.error(err)
@@ -400,7 +398,7 @@ export const Mutation = {
     }
 
   },
-  new_lab_fiche: async(parent:any, args:any,{models, user}:{models:any,user:any})=>{
+  new_lab_fiche: async(parent:any, args:any,{models, user, pubsub}:{models:any,user:any, pubsub:any})=>{
     if (!user) {
       throw new GraphQLError("You must be signed in");
     }
@@ -473,14 +471,40 @@ export const Mutation = {
         ge: args.ge,
         gf: args.gf,
         snip: args.snip,
-        sang_autres: args.sang_autres
+        sang_autres: args.sang_autres,
+      });
+
+      const notification = await models.PatientNotification.create({
+        message: `une nouvelle fiche de laboratoire`,
+        patient: args.patient
       })
+
+      pubsub.publish(`ROOM${args.hospital}`, {notification: notification})
+
+
+      const Hospital = await models.hospitals.findOne({_id: args.hospital}) 
+      if(Hospital.patientNotification === null){
+        await models.hospitals.findOneAndUpdate({
+          _id: args.hospital
+        },{
+          $set:{
+            patientNotification: notification._id
+          },
+        },{
+            new: true
+          }
+        )
+        }else{
+          Hospital.patientNotification.push(notification._id)
+          await Hospital.save()
+        }
+    
       return newLab
     }catch(err){
       throw new GraphQLError("failed to create new lab fiche")
     }
   },
-  new_fiche_prenatale: async(parent:any, args:any,{models, user}:{models:any,user:any})=>{
+  new_fiche_prenatale: async(parent:any, args:any,{models, user, pubsub}:{models:any,user:any, pubsub:any})=>{
     if (!user) {
       throw new GraphQLError("You must be signed in");
     }
@@ -506,10 +530,156 @@ export const Mutation = {
         hospital: args.hospital,
         users: args.users
       })
+
+      const notification = await models.PatientNotification.create({
+        message: `une nouvelle fiche de consultation prenatale`,
+        patient: args.patient
+      })
+
+      pubsub.publish(`ROOM${args.hospital}`, {notification: notification})
+
+
+      const Hospital = await models.hospitals.findOne({_id: args.hospital}) 
+      if(Hospital.patientNotification === null){
+        await models.hospitals.findOneAndUpdate({
+          _id: args.hospital
+        },{
+          $set:{
+            patientNotification: notification._id
+          },
+        },{
+            new: true
+          }
+        )
+    }else{
+      Hospital.patientNotification.push(notification._id)
+      await Hospital.save()
+    }
+
       return new_fiche_prenatale
     }catch(err){
       console.log(err)
       throw new GraphQLError("failed to create fiche prenatale")
+    }
+  },
+  publishGreeting: async(parent:any, args:any,{models, user, pubsub, clound}:{models:any,user:any, pubsub:any, clound:any}) =>{
+    const greeting = 'Hello, everyone!'; // Replace with your desired greeting
+      
+      // Publish the greeting event to the subscription channel
+      pubsub.publish('GREETING_CHANNEL', { greeting: greeting });
+      
+      return greeting;
+  },
+  new_posts: async(parent:any, args:any,{models, user,clound, pubsub}:{models:any,user:any, clound:any, pubsub:any}) =>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to create a post");
+    }
+    try{
+      const post = await models.Posts.create({
+        content: args.content,
+        comments: args.comments,
+        author: args.author,
+        image: args.image ? await PHOTO_UPLOAD(clound, args.image): null,
+        likes: args.likes,
+        hospital: args.hospital,
+      })
+
+      pubsub.publish(`NEW_POST${args.hospital}`, {postsByHospital: post})
+
+      try{
+        const User = await models.Users.findOne({_id: args.author}) 
+        if(User.postsNotification === null || User.postsNotification === undefined){
+          await models.Users.findOneAndUpdate({
+            _id :args.author},
+            {
+              $set:{
+              postsNotification:[post._id]
+              }
+        },
+          {
+            new: true
+          })
+        }else{
+          User.postsNotification.push(post._id)
+          await User.save()
+        }
+
+      }catch(err){
+        console.log(err)
+        throw new GraphQLError("failed to update user post notification")
+      } 
+
+    
+
+      return post
+    }catch(err){
+      console.log(err)
+      throw new GraphQLError("Failed to create new post");
+    }
+  },
+  new_comments: async(parent:any, args:any,{models, user,clound, pubsub}:{models:any,user:any, clound:any, pubsub:any})=>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to comment on a post");
+    }
+    try{
+      const comment = await models.Comments.create({
+        comment: args.comment,
+        post: args.post,
+        user: args.user
+      })
+      
+      pubsub.publish(`NEW_COMMENT`, {newComment: comment})
+
+      const Post = await models.Posts.findOne({_id: args.post})
+      if(Post.comments === null){
+        await models.Posts.findOneAndUpdate({_id :args.post},
+          {
+            $set:{
+            comments:[comment._id]
+        },},
+        {
+          new: true
+        })
+      }else{
+        Post.comments.push(comment._id)
+        await Post.save()
+      }
+
+      return comment
+
+    }catch(err){
+      throw new GraphQLError("Failed to create a new comment");
+    }
+  },
+  createLikes: async(parent:any, args:any,{models, user,clound, pubsub}:{models:any,user:any, clound:any, pubsub:any})=>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to like on a post");
+    }
+    try{
+      const like = await models.Likes.create({
+        user: args.user,
+        posts: args.posts,
+        likes: args.posts,
+      })
+
+      const Post = await models.Posts.findOne({_id: args.posts})
+      if(Post.likes=== null){
+        await models.Posts.findOneAndUpdate({_id :args.posts},
+          {
+            $set:{
+            likes:[like._id]
+        },},
+        {
+          new: true
+        })
+      }else{
+        Post.likes.push(like._id)
+        await Post.save()
+      }
+
+      return like
+    }catch(err){
+      throw new GraphQLError("Failed to create a new like");
     }
   }
 

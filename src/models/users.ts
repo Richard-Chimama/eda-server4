@@ -7,6 +7,11 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        id_card:{
+            type: String,
+            required: true,
+            index: {unique: true}
+        },
         email: {
             type: String,
             required: true,
@@ -28,6 +33,10 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: false
         },
+        postsNotification:[{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Posts"
+        }],
         hospital:[{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Hospitals"

@@ -1,8 +1,8 @@
 import mongoose from "mongoose"
 
 const FichePrenatale = new mongoose.Schema({
-    ddr: {type: Boolean, required: false},
-    dpa: {type: Boolean, required: false},
+    ddr: {type: Date, required: false},
+    dpa: {type: Date, required: false},
     above19: {type: Boolean, required: false},
     above15: {type: Boolean, required: false},
     tbc: {type: Boolean, required: false},

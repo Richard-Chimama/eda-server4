@@ -9,13 +9,15 @@ export const typeDefs = `#graphql
  #define the registered staff in the hospital
   type Users{
     id: ID!,
-    username: String!
+    id_card: String
+    username: String
     email: String!
     avatar: Upload
     cnop: String
     password: String!
     role: String
     hospital: [Hospital]
+    postsNotification: [Posts]
   }
 
   type Hospital{
@@ -25,10 +27,49 @@ export const typeDefs = `#graphql
     city: String!
     logo: Upload
     user: [Users]
+    patientNotification: [PatientNotification]
+    patients: [Patients]
     category: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
+
+  type PatientNotification{
+    id: ID!
+    message: String!
+    patient: Patients!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type Posts{
+    id: ID!
+    content: String!
+    image: Upload 
+    author: Users!
+    comments:[Comments!]
+    likes:[Likes!]
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    hospital: Hospital!
+  }
+
+  type Comments{
+    id: ID
+    comment:String!
+    post:Posts!
+    user:Users!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type Likes{
+    id:ID!
+    like:Boolean!
+    user:Users!
+    posts:Posts!
+  }
+
 
   type Lab{
     id: ID!,
@@ -167,6 +208,7 @@ export const typeDefs = `#graphql
     createdAt: DateTime!
     updatedAt: DateTime!
     patient: Patients!
+    hospital: Hospital!
     users: [Users]
   }
 
@@ -179,6 +221,7 @@ export const typeDefs = `#graphql
     hospital: Hospital
     user: Users
   }
+  
 
   # The "Query" type is special: it lists all of the available queries that
   # clients can execute, along with the return type for each. In this
@@ -213,16 +256,19 @@ export const typeDefs = `#graphql
 
     #Fiche prenatale
     fiche_prenatale(patientId:String!): [Fiche_prenatale]!
+
+    #posts by the hospital
+    postsByHospital(hospitalId:String!):[Posts]!
   }
 
   type Mutation{
     #Hospitals mutations
-    newHospital(name: String!, address: String!, city:String!, logo:Upload, category:String!, user: String): Hospital!
+    newHospital(name: String!, address: String!, city:String!, logo:Upload, category:String!, user: String, patientNotification: String, patients: String): Hospital!
     updateHospital(id: ID!, name: String, address: String, city:String,  user:String): Hospital
     deleteHospital(id: ID!): Boolean!
 
     #Users
-    signUp(username: String!, email: String!, password: String!, cnop: String, role: String!, avatar: Upload, hospital: String! ):String!
+    signUp(username: String!, email: String!,  id_card: String, password: String!, cnop: String, role: String!, avatar: Upload, hospital: String, postsNotification:String ):String!
     signIn( email: String!, password: String!): String!
 
 
@@ -235,7 +281,7 @@ export const typeDefs = `#graphql
     #new form the attendance
     newFiche(allergie:String, intoxication: String, atcd_chirurgicaux: String, atcd_medicaux: String,
             rh: String, gs: String, pouls: String, temperature: String, poids: String, taille: String,
-            ta:String, observations: String, prescription: String, user: String! patient:String!): Form_attendance!
+            ta:String, observations: String, prescription: String, user: String!, hospital: String!, patient:String!): Form_attendance!
     updateFiche(id:String!, prescription: String): Form_attendance!
 
 
@@ -244,7 +290,7 @@ export const typeDefs = `#graphql
     
 
     #Lab
-    new_lab_fiche(  h_pyloria: String, gb: String, fl: String, gr: String, hb: String, hct: String, vs: String, frottis_vaginal: String,
+    new_lab_fiche(h_pyloria: String, gb: String, fl: String, gr: String, hb: String, hct: String, vs: String, frottis_vaginal: String,
           temps_saignement: String, temps_coagulation: String, plq_sanguine: String, autres: String, ex_direct: String, enrichissement: String,
           sediment_urinaire: String, sucre: String, albuminurie: String, gram: String, ziell: String, encre_chine: String,
           hemoculture_ab: String, coproculture_ab: String, uroculture_ab: String, spermatogramme: String, fv: String, widal: String,
@@ -262,7 +308,21 @@ export const typeDefs = `#graphql
           syphylis: Boolean, vihsida: Boolean, viol: Boolean, pep: Boolean, fobrome_uterin: Boolean,
           fracture_bassin: Boolean, patient: String!,
           hospital: String!, users: String!): Fiche_prenatale!
+
+  publishGreeting: String
   
+    #new Posts
+    new_posts(content: String!, image: Upload, author: String, comments: String, likes: String, hospital: String): Posts!
+    new_comments(comment: String, post: String, user: String): Comments!
+    createLikes(like: Boolean!, user: String!, posts: String!): Likes!
   }
+
+type Subscription{
+  greeting(data:String): String
+  notification(hospitalId:String!): PatientNotification!
+  postsByHospital(hospitalId:String!): Posts!
+  newComment(postId:String!): Comments!
+}
+
 `;
 
