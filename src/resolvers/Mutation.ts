@@ -180,7 +180,6 @@ export const Mutation = {
     }
 
   },
-
   //signin
   signIn: async (
     parent: any,
@@ -219,7 +218,40 @@ export const Mutation = {
     //create and return the json web token
     return jwt.sign(payload, JWT_SECRETE);
   }, //end of signing in
+  deleteUser:async(parent:any, args:any, {models, user, clound}:{models:any, user:any, clound:any})=>{
+    if(!user){
+      throw new GraphQLError("you must be signin to delete the user")
+    }
+    try{
+      await models.Users.findOneAndRemove({_id: args.user})
+      return true
+    }catch(error){
+      return false
+    }
+  },
+  updateUserRole:async(parent:any, args:any, {models, user, clound}:{models:any, user:any, clound:any})=>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to update user information");
+    }
 
+    try{
+      const updateUserRole = await models.Users.findOneAndUpdate({
+        _id: args.user
+      },{
+        $set:{
+          role:args.role
+        }
+      },{
+        new: true
+      })
+
+      return updateUserRole
+
+    }catch(error){
+      console.log(error)
+      throw new GraphQLError("Failed to update user information!")
+    }
+  },
   //create a patient
   newPatient: async(parent:any, args:any, {models, user, clound}:{models:any, user:any, clound:any})=>{
 

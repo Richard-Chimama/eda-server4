@@ -130,6 +130,32 @@ export const Query = {
             throw new GraphQLError(err.message)
         }
     },
+    patientByHospital:async(parent:any, args:any, {models, user}:{models:any, user:any})=>{
+        if (!user) { throw new GraphQLError("user not authenticated")}
+        try{
+            const patients = await models.Patients.find({hospital: args.hospitalId})
+            const  populatedPatient = patients.map((patient:any) =>{
+                const person = patient
+                  .populate([
+                    {
+                      path: "hospital",
+                      model: "Hospitals",
+                    }
+                  ])
+                  .then((client: any) => client)
+                  .catch((error: any) => console.error(error));
+
+                  return person
+
+                })
+           
+
+            return populatedPatient
+        }catch(err){
+            console.log(err);
+            throw new GraphQLError("Failled to find all patients data by hospital!!");
+        }
+    },
     form_attendances: async(parent:any, args:any, {models, user}:{models:any, user:any})=>{
         if(!user){
             throw new GraphQLError("user not authenticated")

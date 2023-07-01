@@ -241,6 +241,7 @@ export const typeDefs = `#graphql
     #Patients query
     patients: [Patients!]!
     patient(id: String!): Patients
+    patientByHospital(hospitalId: String!): [Patients!]!
 
     #Fiche
     form_attendances: [Form_attendance]!
@@ -270,6 +271,8 @@ export const typeDefs = `#graphql
     #Users
     signUp(username: String!, email: String!,  id_card: String, password: String!, cnop: String, role: String!, avatar: Upload, hospital: String, postsNotification:String ):String!
     signIn( email: String!, password: String!): String!
+    deleteUser(user:String!): Boolean!
+    updateUserRole(user:String!, role: String!): Users!
 
 
     #Patients mutaions

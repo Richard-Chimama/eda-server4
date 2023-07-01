@@ -1,21 +1,3 @@
-/* import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import cors from "cors"
-import bodyParser from "body-parser"
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default"
-import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs"
-import {} from 'http';
-import express from 'express'
-import { typeDefs } from './Schema.js';
-import resolvers from './resolvers/index.js';
-import db from './db.js';
-import dotenv from "dotenv"
-import models from './models/index.js';
-import jwt from "jsonwebtoken"
-import cloudinary from 'cloudinary'
-
-dotenv.config() */
 
 import { ApolloServer } from '@apollo/server';
 import { createServer } from 'http';
