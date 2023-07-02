@@ -649,6 +649,17 @@ export const Mutation = {
       throw new GraphQLError("Failed to create new post");
     }
   },
+  delete_post: async(parent:any, args:any,{models, user,clound, pubsub}:{models:any,user:any, clound:any, pubsub:any}) =>{
+    if (!user) {
+      throw new GraphQLError("You must be signed in to delete on a post");
+    }
+    try{
+      await models.Posts.findOneAndRemove({_id:args.postId})
+      return true
+    }catch(error){
+      return false
+    }
+  },
   new_comments: async(parent:any, args:any,{models, user,clound, pubsub}:{models:any,user:any, clound:any, pubsub:any})=>{
     if (!user) {
       throw new GraphQLError("You must be signed in to comment on a post");

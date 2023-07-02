@@ -315,7 +315,8 @@ export const typeDefs = `#graphql
   publishGreeting: String
   
     #new Posts
-    new_posts(content: String!, image: Upload, author: String, comments: String, likes: String, hospital: String): Posts!
+    new_posts(content: String!, image: Upload, author: String!, comments: String, likes: String, hospital: String!): Posts!
+    delete_post(postId:String!): Boolean!
     new_comments(comment: String, post: String, user: String): Comments!
     createLikes(like: Boolean!, user: String!, posts: String!): Likes!
   }

@@ -347,7 +347,7 @@ export const Query = {
                 })
             )
 
-            return populatedPosts
+            return populatedPosts //.filter((item)=> item.author !== null)
 
         }catch(err){
             console.log(err)
